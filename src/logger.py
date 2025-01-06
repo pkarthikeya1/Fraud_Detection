@@ -14,7 +14,6 @@ file_name= os.path.join(logging_dir, 'logfile.log')
 logging.basicConfig(
     level=logging.INFO,
     format= LOGGING_STR,
-    filename= file_name,
     handlers= [
         logging.StreamHandler(sys.stdout),
         logging.FileHandler(file_name)
