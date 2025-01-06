@@ -23,13 +23,6 @@ class DataIngestionStrategy(ABC):
         pass
 
 
-# Strategy Interface for Data Ingestion
-class DataIngestionStrategy(ABC):
-    @abstractmethod
-    def ingest(self):
-        """Ingest data from a specific source."""
-        pass
-
 
 # Concrete Strategy for Database Data Ingestion
 class DatabaseDataIngestion(DataIngestionStrategy):
@@ -113,7 +106,7 @@ if __name__ == "__main__":
         
         # Execute query
         results = connector.execute_query(config.sql_query)
-        # Assume you have raw data from some source
+
 
         # Create a data pipeline using the Database Data Ingestion strategy
         db_strategy = DatabaseDataIngestion(results, DataIngestionConfig())
