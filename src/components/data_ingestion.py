@@ -42,7 +42,7 @@ class DatabaseDataIngestion(DataIngestionStrategy):
             raise
 
 
-# Data splitting class (Single Responsibility Principle)
+# Data splitting class 
 class DataSplitter:
     def __init__(self, raw_data):
         self.raw_data = raw_data
@@ -74,7 +74,7 @@ class DataPipeline:
 
             # Split the data
             self.data_splitter = DataSplitter(raw_data)
-            train_data, test_data = self.data_splitter.split(test_data_size=0.2)
+            train_data, test_data = self.data_splitter.split(test_data_size=0.2, random_state=42)
 
             # Save the split data
             logger.info("Saving train and test data to files.")

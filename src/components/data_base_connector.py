@@ -1,5 +1,8 @@
+import os
+import sys
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 import sqlite3
 import pandas as pd
 from typing import Optional
@@ -36,8 +39,6 @@ class SQLite3Connector(Connector):
         Connects to a database given in db_name string
         Returns:
             str: Connection success message
-        Raises:
-            sqlite3.Error: If connection fails
         """
         try:
             self.connection = sqlite3.connect(self.db_name)
@@ -56,10 +57,6 @@ class SQLite3Connector(Connector):
             query: str: SQL query to execute
         Returns:
             pd.DataFrame: Query results
-        Raises:
-            ConnectionError: If database is not connected
-            sqlite3.Error: If query execution fails
-            pd.io.sql.DatabaseError: If pandas fails to read SQL results
         """
         try:
             if self.connection is None:
@@ -85,14 +82,7 @@ class SQLite3Connector(Connector):
             logger.error(error_msg)
             raise
 
-    def __del__(self):
-        """Cleanup method to close database connection"""
-        try:
-            if self.connection is not None:
-                self.connection.close()
-                logger.info(f"Closed connection to database: {self.db_name}")
-        except Exception as e:
-            logger.warning(f"Error while closing database connection: {str(e)}")
+
 
 # Step 3: Define Abstract Factory
 class DatabaseFactory(ABC):

@@ -1,5 +1,6 @@
 venv/
 artifacts/
+pycuda/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

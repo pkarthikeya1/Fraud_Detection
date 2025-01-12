@@ -9,3 +9,5 @@ sqlite-utils
 joblib
 ipykernel
 pyarrow
+plotly
+torch
