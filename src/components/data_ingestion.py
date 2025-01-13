@@ -3,9 +3,9 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
-from sklearn.model_selection import train_test_split
 from src.logger import logger
 from src.components.data_base_connector import DatabaseConfig, SQLiteFactory
+from src.utils import DataSplitter
 
 
 @dataclass
@@ -42,21 +42,6 @@ class DatabaseDataIngestion(DataIngestionStrategy):
             raise
 
 
-# Data splitting class 
-class DataSplitter:
-    def __init__(self, raw_data):
-        self.raw_data = raw_data
-
-    def split(self, test_data_size, random_state:int = None):
-        try:
-            # Split data into train and test
-            logger.info(f"Splitting data with test size: {test_data_size}.")
-            train_data, test_data = train_test_split(self.raw_data, test_size=test_data_size, random_state=random_state)
-            logger.info("Data splitting successful.")
-            return train_data, test_data
-        except Exception as e:
-            logger.error(f"Error during data splitting: {e}")
-            raise
 
 
 # Context Class that uses Strategy Pattern
@@ -87,6 +72,9 @@ class DataPipeline:
         except Exception as e:
             logger.error(f"Error during data pipeline execution: {e}")
             raise
+
+
+
 
 
 # Usage Example
