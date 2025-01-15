@@ -1,53 +1,57 @@
+# backend.py
+import joblib
 import pandas as pd
-from src.components.model_building import (
-    BuildTrainTestSplit,
-    TrainTestSplitStrategy,
-    ScalingStrategyHandler,
-    MinMaxScalingStrategy,
-    RandomForestModelStrategy,
-    ClassifierStrategy
+from src.components.model_building import ScalingStrategyHandler, MinMaxScalingStrategy, RandomForestModelStrategy, ClassifierStrategy
+from src.components.data_preprocessing import (
+    DropColumnsStrategy, CreateColumnsStrategy, FillObjectColumsWithNaN, MissingValueHandler, DropMissingValuesStrategy, EngineerFeatures
 )
-from src.db_paths import best_params
 
-# Load the dataset
-df = pd.read_parquet("path/to/your/test_data.parquet")
-
-# Separate features and target
-y = df['isFraud']  # Assuming you want to predict fraud, adjust if not
-X = df.drop(columns=['isFraud'])
-
-# Step 1: Initialize Scaling Strategy and Scale the Data
+# Load necessary configurations
 scaling_strategy = MinMaxScalingStrategy()
 scaler_handler = ScalingStrategyHandler(strategy=scaling_strategy)
 
-# Perform scaling
-_, X_scaled, _ = scaler_handler.scale_data(X)
+# Define numerical and discrete columns
+numerical_columns = ['amount', 'oldbalanceOrg', 'newbalanceOrig', 'oldbalanceDest', 'newbalanceDest']
+discrete_columns = ['step', 'type']
 
-# Step 2: Initialize Data Splitting Strategy (no need to split since we are predicting)
-split_strategy = TrainTestSplitStrategy()
-split_handler = BuildTrainTestSplit(strategy=split_strategy)
-
-# We do not need to split the data for prediction, so we skip this step
-# X_train, X_test, y_train, y_test = split_handler.split_data(X_scaled, y, test_size=0.2, random_state=42)
-
-# Load the trained model (assuming it has been saved or loaded)
+# Initialize the classifier
 rf_model_strategy = RandomForestModelStrategy()
 classifier_strategy = ClassifierStrategy(strategy=rf_model_strategy)
 
-# Assuming you have a trained RandomForest model saved
-# (e.g., saved as 'trained_model.pkl'), you can load it here if necessary.
-# For now, let's assume the model is already built and we proceed directly with predictions.
+# Function for fraud detection
+def fraud_detection(df):
+    # Create a DataFrame from user inputs
+    input_data = df
 
-# Use the trained model to make predictions
-# Make sure you have trained the model previously and have the model's parameters saved
-# (i.e., load the best trained model using the best_params)
+    # Apply Feature Engineering Steps
+    feature_engineer = EngineerFeatures()
 
-# Build the classifier (use parameters from ModelBuildingConfig.params)
-model = classifier_strategy.strategy.build_classifier(X, y, **best_params)
+    feature_engineer.set_strategy(DropColumnsStrategy(columns=['step', 'type', 'isFlaggedFraud', 'nameOrig', 'nameDest']))
+    input_data_transformed = feature_engineer.engineer_features(df=input_data)
 
-# Make predictions on the test data
-predictions = model.predict(X_scaled)
+    # Step 1: Handle Missing Values
+    missing_value_handler = MissingValueHandler(DropMissingValuesStrategy(axis=0))  # Drop rows with NaN
+    input_data_cleaned = missing_value_handler.handle_missing_values(input_data_transformed)
 
-# Output predictions
-print("Predictions:")
-print(predictions)
+    # Step 2: Feature Engineering
+    # 2.1 Drop unnecessary columns (if any)
+  
+
+    # 2.2 Fill NaN for specific object columns and convert to float
+    feature_engineer.set_strategy(FillObjectColumsWithNaN(columns=input_data_cleaned.columns))
+    input_data_cleaned = feature_engineer.engineer_features(df=input_data_cleaned)
+
+    # 2.3 Add new calculated columns
+    feature_engineer.set_strategy(CreateColumnsStrategy())
+    input_data_transformed = feature_engineer.engineer_features(df=input_data_cleaned)
+
+    # Step 3: Scaling
+    _, X_scaled, _ = scaler_handler.scale_data(input_data_transformed)
+
+    # Load trained model and make prediction
+    model = joblib.load("artifacts/model.pkl")  # Assuming your model is already trained and saved in the strategy
+    prediction = model.predict(X_scaled)
+    probability = model.predict_proba(X_scaled)
+    # Return the prediction result
+    result = ('Fraudulent' if prediction[0] == 1 else 'Non-Fraudulent')
+    return  result, probability
