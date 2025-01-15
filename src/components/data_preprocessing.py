@@ -1,6 +1,9 @@
+import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 from abc import ABC, abstractmethod
 from typing import List
-
+from dataclasses import dataclass
 import pandas as pd
 import numpy as np
 from src.logger import logger
@@ -9,6 +12,13 @@ from src.components.data_ingestion import DataIngestionConfig
 
 
 data_ingestion_config = DataIngestionConfig()
+
+
+
+@dataclass
+class DataTransformationConfig:
+    transformed_train_df = os.path.join('artifacts','transformed_train_data.parquet')
+    transformed_test_df = os.path.join('artifacts','transformed_test_data.parquet')
 
 
 # Step:1 -> Define Abstract Base Class for Missing Value Handling Strategy
@@ -257,20 +267,23 @@ if __name__ == "__main__":
 
     # Apply Feature Engineering Steps
     # Drop unnecessary columns
-    feature_engineer.set_strategy(DropColumnsStrategy(columns=['step', 'type', 'isFraud']))
+    feature_engineer.set_strategy(DropColumnsStrategy(columns=['step', 'type', 'isFlaggedFraud', 'nameOrig', 'nameDest']))
     df_transformed = feature_engineer.engineer_features(df=df_tr)
+
+    # Fill NaN for specific object columns and convert to float
+    feature_engineer.set_strategy(FillObjectColumsWithNaN(columns=df_transformed.columns))
+    df_transformed = feature_engineer.engineer_features(df=df_transformed)
 
     # Add new calculated columns
     feature_engineer.set_strategy(CreateColumnsStrategy())
     df_transformed = feature_engineer.engineer_features(df=df_transformed)
 
-    # Fill NaN for specific object columns and convert to float
-    feature_engineer.set_strategy(FillObjectColumsWithNaN(columns=['newbalanceOrig', 'newbalanceDest']))
-    df_transformed = feature_engineer.engineer_features(df=df_transformed)
 
     # Step 3: Handle Missing Values (Drop NaNs at the end)
     missing_value_handler = MissingValueHandler(DropMissingValuesStrategy(axis=0))  # Drop rows with NaN
     df_cleaned = missing_value_handler.handle_missing_values(df=df_transformed)
 
+    data_trans_config = DataTransformationConfig()
+    df_cleaned.to_parquet(data_trans_config.transformed_train_df)
     # Final output
     print("\nFinal cleaned and feature-engineered DataFrame:\n", df_cleaned.head())
