@@ -10,3 +10,7 @@ ipykernel
 pyarrow
 plotly
 torch
+pydantic
+fastapi 
+uvicorn 
+pydantic
