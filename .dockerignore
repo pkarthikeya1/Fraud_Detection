@@ -1,0 +1,23 @@
+# Exclude version control files and directories
+.git
+.gitignore
+
+# Exclude CI/CD configuration
+.github/
+
+# Exclude documentation and license files
+README.md
+LICENSE
+
+# Exclude notebooks used for development/analysis
+notebooks/
+venv/
+# Exclude any Python cache files and compiled bytecode
+**/__pycache__
+*.pyc
+*.pyo
+*.pyd
+
+# Exclude editor temporary files
+*~
+*.swp

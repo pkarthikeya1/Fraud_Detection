@@ -1,7 +1,16 @@
-FROM python:3.10
+FROM python:3.9-slim
 WORKDIR /app
+
+# Copy the source code into the image
 COPY . /app
 
-RUN apt update -y && apt install awscli -y
-RUN pip install -r requirements.txt
-CMD python src/frontend.py
+# Update package lists, install awscli, and remove package lists to reduce image size
+RUN apt-get update -y && \
+    apt-get install -y --no-install-recommends awscli && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies without caching to keep the image lean
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Set the default command to run your application (adjust as needed)
+CMD ["python", "frontend.py"]
