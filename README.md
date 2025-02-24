@@ -1,4 +1,4 @@
-# Fraud Detection Model
+# Fraud Detection Model with AWS deployment
 
 This project implements a **Fraud Detection Model** designed to identify fraudulent financial transactions using machine learning. The model leverages a **Random Forest Classifier** to classify transactions as either fraudulent or non-fraudulent based on several transaction-related features. By utilizing data from accounts' balance changes and transaction amounts, the model efficiently detects suspicious activities.
 ---
