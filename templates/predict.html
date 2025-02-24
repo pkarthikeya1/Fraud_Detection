@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Direct Prediction</title>
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+  <div class="container mt-5">
+    <h1 class="mb-4 text-center">Direct Prediction</h1>
+    
+    {% if error %}
+      <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+    
+    <form method="post">
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label for="amount">Amount</label>
+          <input type="number" step="any" name="amount" id="amount" class="form-control" value="{{ data.amount if data }}" required>
+        </div>
+        <div class="form-group col-md-6">
+          <label for="oldbalanceOrg">Old Balance (Origin)</label>
+          <input type="number" step="any" name="oldbalanceOrg" id="oldbalanceOrg" class="form-control" value="{{ data.oldbalanceOrg if data }}" required>
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label for="newbalanceOrig">New Balance (Origin)</label>
+          <input type="number" step="any" name="newbalanceOrig" id="newbalanceOrig" class="form-control" value="{{ data.newbalanceOrig if data }}" required>
+        </div>
+        <div class="form-group col-md-6">
+          <label for="oldbalanceDest">Old Balance (Destination)</label>
+          <input type="number" step="any" name="oldbalanceDest" id="oldbalanceDest" class="form-control" value="{{ data.oldbalanceDest if data }}" required>
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label for="newbalanceDest">New Balance (Destination)</label>
+          <input type="number" step="any" name="newbalanceDest" id="newbalanceDest" class="form-control" value="{{ data.newbalanceDest if data }}" required>
+        </div>
+        <div class="form-group col-md-6">
+          <label for="step">Step</label>
+          <input type="number" name="step" id="step" class="form-control" value="{{ data.step if data }}" required>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="type">Type</label>
+        <select name="type" id="type" class="form-control">
+          <option value="Transfer" {% if data and data.type == "Transfer" %}selected{% endif %}>Transfer</option>
+          <option value="Payment" {% if data and data.type == "Payment" %}selected{% endif %}>Payment</option>
+          <option value="CashIn" {% if data and data.type == "CashIn" %}selected{% endif %}>CashIn</option>
+          <option value="CashOut" {% if data and data.type == "CashOut" %}selected{% endif %}>CashOut</option>
+        </select>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label for="nameOrig">Origin Account Name</label>
+          <input type="text" name="nameOrig" id="nameOrig" class="form-control" value="{{ data.nameOrig if data }}" required>
+        </div>
+        <div class="form-group col-md-6">
+          <label for="nameDest">Destination Account Name</label>
+          <input type="text" name="nameDest" id="nameDest" class="form-control" value="{{ data.nameDest if data }}" required>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="isFlaggedFraud">Is Flagged Fraud (0 or 1)</label>
+        <input type="number" name="isFlaggedFraud" id="isFlaggedFraud" class="form-control" min="0" max="1" value="{{ data.isFlaggedFraud if data }}" required>
+      </div>
+      
+      <button type="submit" class="btn btn-primary">Predict</button>
+    </form>
+
+    {% if result %}
+      <h2 class="mt-5">Prediction Result</h2>
+      <div class="card">
+        <div class="card-body">
+          <p><strong>Prediction:</strong> {{ result.prediction }}</p>
+          <p><strong>Probability Non-Fraud:</strong> {{ result.probability_non_fraud }}</p>
+          <p><strong>Probability Fraud:</strong> {{ result.probability_fraud }}</p>
+        </div>
+      </div>
+    {% endif %}
+    
+    <p class="mt-4"><a href="{{ url_for('home') }}">Back to Home</a></p>
+  </div>
+</body>
+</html>

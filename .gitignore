@@ -5,7 +5,7 @@ pycuda/
 __pycache__/
 *.py[cod]
 *$py.class
-
+fraud_detection.pem
 # C extensions
 *.so
 
