@@ -1,56 +1,70 @@
-# Fraud Detection Model with AWS deployment
+# Fraud Detection Model with AWS Deployment
 
 This project implements a **Fraud Detection Model** designed to identify fraudulent financial transactions using machine learning. The model leverages a **Random Forest Classifier** to classify transactions as either fraudulent or non-fraudulent based on several transaction-related features. By utilizing data from accounts' balance changes and transaction amounts, the model efficiently detects suspicious activities.
----
-## Architecture
-<p align="center">
-  <img src="System_Architecture.svg" alt="FlowChart" width="
-  400" height="500" />
-</p>
 
 ---
+
+## Architecture
+
+<p align="center">
+  <img src="System_Architecture.svg" alt="FlowChart" width="400" height="500" />
+</p>
+
+The architecture now incorporates containerization and automated CI/CD pipelines for continuous deployment. The application is built as a Docker container and deployed on an AWS EC2 instance. GitHub Actions manage the entire lifecycle—from building the Docker image, pushing it to Amazon ECR, and deploying the container on an EC2 instance—to ensure rapid and reliable updates.
+
+---
+
 ## Table of Contents
 
 1. [Project Overview](#project-overview)
 2. [Features](#features)
-3. [Model Training & Hyperparameter Tuning](#model-training-and-hyperparameter-tuning)
+3. [Model Training & Hyperparameter Tuning](#model-training--hyperparameter-tuning)
 4. [Model Performance](#model-performance)
 5. [Feature Importance](#feature-importance)
 6. [Usage](#usage)
-7. [Installation](#installation)
-8. [Files](#files)
-9. [License](#license)
+7. [Containerization](#containerization)
+8. [CI/CD Pipeline](#cicd-pipeline)
+9. [Deployment on EC2](#deployment-on-ec2)
+10. [Installation](#installation)
+11. [Files](#files)
+12. [License](#license)
+
+---
 
 ## Project Overview
 
 The primary objective of this project is to detect fraudulent transactions in financial systems. The model is trained on a dataset containing several features like transaction amount, account balances before and after the transaction, and account information. By leveraging **Random Forest**, the model can differentiate between legitimate and fraudulent transactions.
 
-### Model Approach:
+### Model Approach
 
-- **Data Preprocessing**: The dataset undergoes preprocessing to clean and transform the data for model training. This includes handling missing values, feature scaling, and encoding categorical variables.
-- **Feature Engineering**: New features are derived, such as the difference in account balances before and after the transaction, which is crucial for detecting discrepancies that indicate fraud.
-- **Modeling**: A **Random Forest Classifier** is used for training the model, with hyperparameter tuning to optimize performance.
-- **Evaluation**: The model is evaluated based on precision, recall, F1-score, and other classification metrics.
+- **Data Preprocessing**: The dataset is cleaned and transformed for model training by handling missing values, feature scaling, and encoding categorical variables.
+- **Feature Engineering**: Derived features—such as the difference in account balances—play a crucial role in detecting discrepancies that indicate fraud.
+- **Modeling**: A **Random Forest Classifier** is used, and hyperparameter tuning optimizes its performance.
+- **Evaluation**: The model’s effectiveness is measured via precision, recall, F1-score, and other metrics.
+
+---
 
 ## Features
 
-The dataset includes the following key features used for training the model:
+Key features used for training the model include:
 
-- **step**: The time step of the transaction (integer).
-- **type**: The type of transaction (e.g., CASH-IN, CASH-OUT, etc.).
-- **amount**: The amount of the transaction.
-- **nameOrig**: The name of the origin account.
-- **oldbalanceOrg**: The original balance of the origin account before the transaction.
-- **newbalanceOrig**: The new balance of the origin account after the transaction.
-- **nameDest**: The name of the destination account.
-- **oldbalanceDest**: The original balance of the destination account before the transaction.
-- **newbalanceDest**: The new balance of the destination account after the transaction.
+- **step**: Time step of the transaction.
+- **type**: Type of transaction (e.g., CASH-IN, CASH-OUT).
+- **amount**: Transaction amount.
+- **nameOrig**: Origin account name.
+- **oldbalanceOrg**: Original balance of the origin account.
+- **newbalanceOrig**: New balance of the origin account.
+- **nameDest**: Destination account name.
+- **oldbalanceDest**: Original balance of the destination account.
+- **newbalanceDest**: New balance of the destination account.
+
+---
 
 ## Model Training & Hyperparameter Tuning
 
 ### Hyperparameter Tuning
 
-To optimize the model’s performance, **grid search** was used to find the best hyperparameters for the Random Forest Classifier. The best parameters discovered are:
+Grid search was used to optimize the Random Forest Classifier. The best parameters found are:
 
 ```python
 {'n_estimators': 20, 
@@ -62,40 +76,42 @@ To optimize the model’s performance, **grid search** was used to find the best
  'ccp_alpha': 0.0001}
 ```
 
-### Best F1-Score:
+### Best F1-Score
 
-The model achieved an excellent **F1-score** of `0.9713` with these hyperparameters, demonstrating its effectiveness in identifying fraudulent transactions.
+The tuned model achieved an F1-score of `0.9713`, demonstrating its accuracy in classifying transactions.
+
+---
 
 ## Model Performance
 
 ### Evaluation Metrics
 
-The model was evaluated using various classification metrics, including precision, recall, and F1-score. The following performance metrics were achieved:
+The model’s performance metrics include:
 
 - **F1-Score**: `0.9894`
 - **Precision**: `0.9838`
 - **Recall**: `0.9951`
 
-Here’s the **classification report** for the model:
-
-| Class   | Precision | Recall | F1-Score | Support |
-|---------|-----------|--------|----------|---------|
-| 0.0 (Non-fraud) | 1.00 | 1.00 | 1.00 | 942,872 |
-| 1.0 (Fraud) | 0.98 | 1.00 | 0.99 | 1,220 |
-| **Accuracy** | | | **1.00** | 944,092 |
-| **Macro avg** | 0.99 | 1.00 | 0.99 | 944,092 |
-| **Weighted avg** | 1.00 | 1.00 | 1.00 | 944,092 |
+| Class              | Precision | Recall | F1-Score | Support  |
+|--------------------|-----------|--------|----------|----------|
+| 0.0 (Non-fraud)    | 1.00      | 1.00   | 1.00     | 942,872  |
+| 1.0 (Fraud)        | 0.98      | 1.00   | 0.99     | 1,220    |
+| **Accuracy**       |           |        | **1.00** | 944,092  |
+| **Macro avg**      | 0.99      | 1.00   | 0.99     | 944,092  |
+| **Weighted avg**   | 1.00      | 1.00   | 1.00     | 944,092  |
 
 ### Cross-Validation
 
-During **cross-validation**, the model achieved a **mean F1-score** of `0.9713` with a standard deviation of `0.0374`, indicating consistent performance across different parameter combinations.
+The model achieved a mean F1-score of `0.9713` with a standard deviation of `0.0374` across cross-validation folds, indicating robust performance.
+
+---
 
 ## Feature Importance
 
-Feature importance is an essential part of understanding the model's decision-making process. The following features were identified as the most important for detecting fraud:
+The most important features for detecting fraud include:
 
-| Feature             | Importance |
-|---------------------|------------|
+| Feature              | Importance |
+|----------------------|------------|
 | **errorbalanceOrig** | 0.386132   |
 | **newbalanceOrig**   | 0.210591   |
 | **oldbalanceOrg**    | 0.162828   |
@@ -104,65 +120,116 @@ Feature importance is an essential part of understanding the model's decision-ma
 | **newbalanceDest**   | 0.020096   |
 | **oldbalanceDest**   | 0.019941   |
 
-The most influential feature is **`errorbalanceOrig`**, which represents the difference between the origin account’s balance before and after the transaction. This feature, along with the transaction amount and balance changes, plays a crucial role in detecting fraudulent behavior.
+The key feature, **`errorbalanceOrig`**, represents the difference in the origin account’s balance before and after the transaction, proving critical for fraud detection.
+
+---
 
 ## Usage
 
-### Running the Model
+### Running the Model Locally
 
-1. Clone the repository:
+1. **Clone the Repository:**
    ```bash
    git clone https://github.com/your-username/Fraud_Detection.git
    cd Fraud_Detection
    ```
 
-2. Install the necessary dependencies:
+2. **Install Dependencies:**
    ```bash
    pip install -r requirements.txt
    ```
 
-3. Train the model:
-   Run the Jupyter notebook `03_EDA_and_data_preprocessing.ipynb` to perform exploratory data analysis (EDA) and preprocessing, and then proceed with training the model in the `04_model_building.ipynb`.
+3. **Train the Model:**
+   Execute the Jupyter notebooks for EDA, data preprocessing, and model training:
+   - `01_data_base_connector.ipynb`
+   - `02_data_ingestion.ipynb`
+   - `03_EDA_and_data_preprocessing.ipynb`
+   - `04_model_building.ipynb`
 
-4. Once the model is trained, use the prediction script in `src/pipelines/prediction.py` to predict fraudulent transactions on new data.
+4. **Make Predictions:**
+   Use the prediction script in `src/pipelines/prediction.py` to test on new data.
 
-5. The model is ready for deployment in real-time systems, and predictions can be used to flag suspicious transactions.
+---
+
+## Containerization
+
+This project is containerized using Docker to ensure consistency across environments. The Dockerfile included in the repository builds the application image. A simplified Dockerfile example:
+
+```dockerfile
+FROM python:3.9-slim
+WORKDIR /app
+
+# Copy source code and install dependencies
+COPY . /app
+RUN apt-get update -y && \
+    apt-get install -y --no-install-recommends awscli && \
+    rm -rf /var/lib/apt/lists/*
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Expose the application port
+EXPOSE 8080
+
+# Start the application
+CMD ["python", "frontend.py"]
+```
+
+The accompanying `.dockerignore` file excludes unnecessary files (like local virtual environments, notebooks, and CI/CD configurations) to keep the image lean.
+
+---
+
+## CI/CD Pipeline
+
+The project uses GitHub Actions for continuous integration and continuous deployment (CI/CD):
+
+- **Continuous Integration:**  
+  Tests, linting, and code quality checks are run upon every push to the `main` branch.
+
+- **Continuous Delivery:**  
+  The pipeline builds the Docker image, pushes it to Amazon ECR, and triggers deployment on an EC2 instance running Docker.  
+  The workflow file (`.github/workflows/main.yaml`) automates these steps, ensuring that updates are rapidly deployed to production.
+
+---
+
+## Deployment on EC2
+
+The containerized application is deployed on an AWS EC2 instance:
+
+- **Deployment Process:**  
+  GitHub Actions manages the build and deployment process: after building the Docker image and pushing it to ECR, the pipeline deploys the container on the EC2 instance.
+
+- **Accessing the Application:**  
+  The EC2 instance runs the container with the appropriate port mapping (e.g., `-p 8080:8080`), making the app accessible via the instance's public IP at `https://<EC2_PUBLIC_IP>:8080`.  
+  Security groups and host firewall rules are configured to allow incoming traffic on port 8080.
+
+---
 
 ## Installation
 
-To install the necessary dependencies, you can run:
-
+To install the necessary dependencies, run:
 ```bash
 pip install -r requirements.txt
 ```
+Ensure you have Python 3.7+ and pip installed.
 
-Make sure you have Python 3.7+ and pip installed.
+---
 
 ## Files
 
-- **`notebooks/`**: Contains Jupyter notebooks for data exploration, preprocessing, and model building.
-  - `01_data_base_connector.ipynb`: Connect to the database and load data.
-  - `02_data_ingestion.ipynb`: Ingest data into the system.
-  - `03_EDA_and_data_preprocessing.ipynb`: Perform exploratory data analysis and preprocess the data.
-  - `04_model_building.ipynb`: Train the Random Forest model and tune hyperparameters.
-  
-- **`src/`**: Source code for various components like data ingestion, preprocessing, model building, and prediction.
-  - `components/`: Modular components for database connection, data ingestion, preprocessing, model building, and prediction.
-  - `pipelines/`: Defines prediction and model-building pipelines.
-  
-- **`artifacts/`**: Saved models and other output files (like trained models).
+- **`notebooks/`**: Jupyter notebooks for data exploration, preprocessing, and model building.
+- **`src/`**: Source code for data ingestion, preprocessing, model building, and prediction.
+  - **`components/`**: Modular components for various tasks.
+  - **`pipelines/`**: Prediction and model-building pipelines.
+- **`artifacts/`**: Saved models and output files.
+- **`Dockerfile`**: Dockerfile for containerizing the application.
+- **`requirements.txt`**: Python dependencies.
+- **`.github/workflows/`**: CI/CD pipeline configurations.
+- **`README.md`**: This file.
+- **`LICENSE`**: Project license.
+- **`feature_importance.png`**: Feature importance visualization.
+- **`learning_curve.png`**: Learning curve for model training.
+- **`Screenshot_UI.png`**: Screenshot of the deployed UI.
 
-- **`requirements.txt`**: List of Python dependencies for the project.
-
-- **`LICENSE`**: License file for the project.
-
-- **`README.md`**: Documentation for the project.
-
-- **`feature_importance.png`**: Feature importance plot for the trained model.
-
-- **`learning_curve.png`**: Learning curve plot for the training process.
-
-- **`Screenshot_UI.png`**: Sample UI visualization for model prediction results.
+---
 
 ## License
 
@@ -174,11 +241,12 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ![Learning Curve](./learning_curve.png)
 
-The **learning curve** showcases the model's performance over time, allowing us to track how well the model is learning and whether there are any signs of overfitting or underfitting.
+The **learning curve** showcases model performance over time, indicating whether the model is overfitting or underfitting.
 
 ![UI Screenshot](./Screenshot_UI.png)
 
-This is a screenshot of the UI that displays transaction predictions, showing the detection of fraudulent transactions.
-
+A screenshot of the deployed UI, which displays transaction predictions and flags suspicious activity.
 ```
 
+Feel free to adjust repository URLs, file paths, and specific details to match your environment and project requirements.
+```
