@@ -246,7 +246,7 @@ The **learning curve** showcases model performance over time, indicating whether
 ![UI Screenshot](./Screenshot_UI.png)
 
 A screenshot of the deployed UI, which displays transaction predictions and flags suspicious activity.
-```
 
+```
 Feel free to adjust repository URLs, file paths, and specific details to match your environment and project requirements.
 ```

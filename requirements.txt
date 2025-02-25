@@ -9,10 +9,6 @@ joblib
 ipykernel
 pyarrow
 plotly
-torch
-pydantic
-fastapi 
-uvicorn 
-pydantic
 python-multipart
 flask
+requests
